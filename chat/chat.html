@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="URI.js"></script>
+    <script src="socket.io.js"></script>
+  </head>
+<body>
+
+  <div id="messages" />
+
+  <form id="chat">
+    <input id="msg" />
+  </form>
+
+  <script>
+    var socket = io.connect('http://localhost:4000');
+
+    socket.on('connected', function (name) {
+      $("#messages").append($("<div class='message'><span class='name'>" + name + "</span><span class='connected'> has connected</span></div>"));
+    });
+
+    socket.on('chat', function (name, msg) {
+      $("#messages").append($("<div class='message'><span class='name'>" + name + ":</span><span class='message'> " + msg + "</span></div>"));
+    });
+
+    var name = URI(document.location.toString()).query(true).name;
+    $(function () { socket.emit('connected', name); });
+
+    $("#chat").submit(function (e) {
+      e.preventDefault();
+      var msg = $("#msg");
+      socket.emit('chat', name, msg.val());
+      msg.val("");
+    });
+  </script>
+</body>
